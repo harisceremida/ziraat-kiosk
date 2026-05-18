@@ -275,18 +275,17 @@ html, body {
 .idle-screen {
   position: absolute; inset: 0; background: var(--red);
   display: flex; flex-direction: column; align-items: center;
-  justify-content: space-between;
-  padding: calc(var(--s)*12) calc(var(--s)*8) calc(var(--s)*10);
+  justify-content: center;
+  gap: 4vh;
+  padding: 5vh calc(var(--s)*8);
   cursor: pointer; z-index: 10;
+  overflow: hidden;
   opacity: 0; pointer-events: none;
   transition: opacity .7s ease;
 }
 .idle-screen.visible { opacity: 1; pointer-events: all; }
 
-.idle-top {
-  display: flex; flex-direction: column;
-  align-items: center; gap: calc(var(--s)*4.4); width: 100%;
-}
+/* logo */
 .idle-logo { display: flex; align-items: center; gap: calc(var(--s)*2.6); }
 .idle-wheat { display: flex; gap: calc(var(--s)*0.7); }
 .iwl, .iwr { display: flex; flex-direction: column; gap: calc(var(--s)*0.7); }
@@ -296,14 +295,20 @@ html, body {
 }
 .iwr .igrain { border-radius: 0 50% 0 50%; }
 .idle-logo-txt { font-size: calc(var(--s)*7); font-weight: 500; color: #fff; }
-.idle-logo-sub { font-size: calc(var(--s)*2.7); color: rgba(255,255,255,.5); letter-spacing: 0.4em; }
-.idle-divider  { width: calc(var(--s)*8); height: 2px; background: rgba(255,255,255,.2); }
+.idle-logo-sub { font-size: calc(var(--s)*2.7); color: rgba(255,255,255,.5); letter-spacing: 0.4em; text-align: center; }
+
+/* divider */
+.idle-divider { width: calc(var(--s)*8); height: 2px; background: rgba(255,255,255,.2); }
+
+/* headline */
 .idle-headline {
   font-size: calc(var(--s)*7); font-weight: 600;
   color: #fff; text-align: center; line-height: 1.25;
 }
+
+/* rotating message */
 .msg-cycle {
-  height: calc(var(--s)*6); overflow: hidden;
+  height: calc(var(--s)*5.5); overflow: hidden;
   position: relative; width: 100%;
 }
 .msg-item {
@@ -314,6 +319,7 @@ html, body {
 .msg-item.out-up        { transform: translateY(-110%); opacity: 0; }
 .msg-item.in-from-below { transform: translateY(110%);  opacity: 0; }
 
+/* service chips */
 .idle-services {
   display: grid; grid-template-columns: 1fr 1fr;
   gap: calc(var(--s)*2); width: 100%;
@@ -321,19 +327,20 @@ html, body {
 .idle-chip {
   background: rgba(255,255,255,.13); border: 2px solid rgba(255,255,255,.2);
   border-radius: calc(var(--s)*2.4);
-  padding: calc(var(--s)*2.7) calc(var(--s)*3.5);
+  padding: calc(var(--s)*2.5) calc(var(--s)*3.2);
   display: flex; align-items: center; gap: calc(var(--s)*2);
-  color: rgba(255,255,255,.88); font-size: calc(var(--s)*3.1);
+  color: rgba(255,255,255,.88); font-size: calc(var(--s)*3);
 }
-.idle-chip i { font-size: calc(var(--s)*3.7); color: rgba(255,255,255,.65); }
+.idle-chip i { font-size: calc(var(--s)*3.6); color: rgba(255,255,255,.65); }
 
+/* tap button area */
 .idle-tap {
   display: flex; flex-direction: column;
-  align-items: center; gap: calc(var(--s)*2.8); width: 100%;
+  align-items: center; gap: 2vh; width: 100%;
 }
 .idle-tap-btn {
   background: #fff; border-radius: 999px;
-  padding: calc(var(--s)*4.2) calc(var(--s)*8);
+  padding: calc(var(--s)*4) calc(var(--s)*8);
   font-size: calc(var(--s)*4); font-weight: 600; color: var(--red);
   border: none; cursor: pointer; width: 100%;
   font-family: var(--font);
@@ -364,24 +371,22 @@ html, body {
 
   <!-- IDLE -->
   <div class="idle-screen" id="idle">
-    <div class="idle-top">
-      <div class="idle-logo">
-        <div class="idle-wheat">
-          <div class="iwl"><div class="igrain"></div><div class="igrain"></div><div class="igrain"></div></div>
-          <div class="iwr"><div class="igrain"></div><div class="igrain"></div><div class="igrain"></div></div>
-        </div>
-        <div class="idle-logo-txt">Ziraat Bank</div>
+    <div class="idle-logo">
+      <div class="idle-wheat">
+        <div class="iwl"><div class="igrain"></div><div class="igrain"></div><div class="igrain"></div></div>
+        <div class="iwr"><div class="igrain"></div><div class="igrain"></div><div class="igrain"></div></div>
       </div>
-      <div class="idle-logo-sub">SARAJEVO · BH d.d.</div>
-      <div class="idle-divider"></div>
-      <div class="idle-headline">Vaša banka.<br>Uvijek tu za vas.</div>
-      <div class="msg-cycle"><div class="msg-item" id="msg">Otvorite račun danas i počnite štedjeti.</div></div>
-      <div class="idle-services">
-        <div class="idle-chip"><i class="ti ti-wallet"></i> Računi i depoziti</div>
-        <div class="idle-chip"><i class="ti ti-home-dollar"></i> Krediti</div>
-        <div class="idle-chip"><i class="ti ti-world"></i> Doznake</div>
-        <div class="idle-chip"><i class="ti ti-device-mobile"></i> Mobilna app</div>
-      </div>
+      <div class="idle-logo-txt">Ziraat Bank</div>
+    </div>
+    <div class="idle-logo-sub">SARAJEVO · BH d.d.</div>
+    <div class="idle-divider"></div>
+    <div class="idle-headline">Vaša banka.<br>Uvijek tu za vas.</div>
+    <div class="msg-cycle"><div class="msg-item" id="msg">Otvorite račun danas i počnite štedjeti.</div></div>
+    <div class="idle-services">
+      <div class="idle-chip"><i class="ti ti-wallet"></i> Računi i depoziti</div>
+      <div class="idle-chip"><i class="ti ti-home-dollar"></i> Krediti</div>
+      <div class="idle-chip"><i class="ti ti-world"></i> Doznake</div>
+      <div class="idle-chip"><i class="ti ti-device-mobile"></i> Mobilna app</div>
     </div>
     <div class="idle-tap">
       <button class="idle-tap-btn" onclick="dismissIdle()">Dodirnite za početak</button>
