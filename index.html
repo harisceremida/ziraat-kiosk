@@ -2,817 +2,675 @@
 <html lang="bs">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Ziraat Bank BH — Informacijski kiosk · Sarajevo</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
 <style>
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+/* ── RESET & ROOT ─────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-  :root {
-    --red: #c8102e;
-    --red-light: #fdeaec;
-    --red-dark: #a00c23;
-    --white: #ffffff;
-    --bg: #e8eaed;
-    --surface: #f7f8fa;
-    --border: #e4e8ed;
-    --text: #1a1a2e;
-    --muted: #777;
-    --hint: #aaa;
-    --font: 'DM Sans', sans-serif;
-  }
+:root {
+  --red:     #c8102e;
+  --surface: #f7f8fa;
+  --border:  #e4e8ed;
+  --text:    #1a1a2e;
+  --muted:   #777;
+  --hint:    #aaa;
+  --font:    'DM Sans', sans-serif;
 
-  html, body {
-    min-height: 100vh;
-    background: var(--bg);
-    font-family: var(--font);
-    display: flex;
-    align-items: flex-start;
-    justify-content: center;
-    padding: 32px 16px 48px;
-  }
+  /* fluid scale: 1vw of a 1080px screen = 0.0926vw */
+  --s:  calc(1vw * 0.926);   /* ~10px at 1080px wide  */
+}
 
-  .wrapper {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 14px;
-    width: 100%;
-    max-width: 420px;
-  }
+html, body {
+  width: 100vw;
+  height: 100dvh;
+  overflow: hidden;
+  background: #fff;
+  font-family: var(--font);
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
 
-  .device-bar {
-    width: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 0 4px;
-  }
+/* ── TIMER BAR ────────────────────────────────────── */
+.timer-bar {
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  height: calc(var(--s) * 5);
+  background: rgba(0,0,0,0.04);
+  border-top: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 calc(var(--s) * 4);
+  z-index: 20;
+}
+.timer-bar span {
+  font-size: calc(var(--s) * 2.2);
+  color: #bbb;
+  display: flex;
+  align-items: center;
+  gap: calc(var(--s) * 0.8);
+}
 
-  .device-bar-label {
-    font-size: 10px;
-    color: #999;
-    letter-spacing: 1.5px;
-    text-transform: uppercase;
-  }
+/* ── KIOSK SHELL ──────────────────────────────────── */
+.kiosk {
+  width: 100vw;
+  height: calc(100dvh - calc(var(--s) * 5));
+  background: #fff;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow: hidden;
+}
 
-  .timer-indicator {
-    font-size: 10px;
-    color: #bbb;
-    display: flex;
-    align-items: center;
-    gap: 5px;
-  }
+/* ── SCREENS ──────────────────────────────────────── */
+.screen { display: none; flex-direction: column; flex: 1; overflow: hidden; }
+.screen.active { display: flex; }
 
-  .kiosk {
-    width: 100%;
-    background: #fff;
-    border-radius: 18px;
-    overflow: hidden;
-    border: 1px solid #c8cdd4;
-    box-shadow: 0 8px 40px rgba(0,0,0,0.10);
-    display: flex;
-    flex-direction: column;
-    min-height: 700px;
-    position: relative;
-  }
+/* ── CATEGORY HEADER ──────────────────────────────── */
+.kh { padding: calc(var(--s)*5) calc(var(--s)*6) calc(var(--s)*4); flex-shrink: 0; }
+.kh-nav {
+  display: flex; align-items: center;
+  gap: calc(var(--s)*3); margin-bottom: calc(var(--s)*3.5);
+}
+.back {
+  display: flex; align-items: center; gap: calc(var(--s)*1.4);
+  font-size: calc(var(--s)*3); color: rgba(255,255,255,.78);
+  cursor: pointer; padding: calc(var(--s)*1.5) calc(var(--s)*3.5);
+  border-radius: 999px;
+  border: 2px solid rgba(255,255,255,.32);
+  background: rgba(255,255,255,.12);
+  font-family: var(--font); transition: background .12s; white-space: nowrap;
+}
+.back:hover, .back:active { background: rgba(255,255,255,.24); }
+.back i { font-size: calc(var(--s)*2.8); }
+.bc { font-size: calc(var(--s)*2.5); color: rgba(255,255,255,.42); }
+.kh-row { display: flex; align-items: center; gap: calc(var(--s)*3); }
+.kh-icon {
+  width: calc(var(--s)*10); height: calc(var(--s)*10);
+  background: rgba(255,255,255,.16); border-radius: calc(var(--s)*2.5);
+  display: flex; align-items: center; justify-content: center;
+  font-size: calc(var(--s)*5.2); color: #fff; flex-shrink: 0;
+}
+.kh-t { font-size: calc(var(--s)*5.2); font-weight: 600; color: #fff; line-height: 1.15; }
+.kh-s { font-size: calc(var(--s)*2.7); color: rgba(255,255,255,.58); margin-top: calc(var(--s)*0.6); }
 
-  /* ── SCREENS ── */
-  .screen { display: none; flex-direction: column; flex: 1; }
-  .screen.active { display: flex; }
+/* ── BODY ─────────────────────────────────────────── */
+.body {
+  padding: calc(var(--s)*4) calc(var(--s)*6);
+  background: var(--surface);
+  display: flex; flex-direction: column; gap: calc(var(--s)*3.2);
+  flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch;
+}
+.slabel {
+  font-size: calc(var(--s)*2.3); color: #999;
+  text-transform: uppercase; letter-spacing: 0.18em; font-weight: 500;
+}
+.card {
+  background: #fff; border: 2px solid var(--border);
+  border-radius: calc(var(--s)*2.8); padding: calc(var(--s)*4) calc(var(--s)*4.8);
+  display: flex; flex-direction: column; gap: calc(var(--s)*3);
+}
+.row { display: flex; align-items: flex-start; gap: calc(var(--s)*3.5); }
+.ic {
+  width: calc(var(--s)*8.5); height: calc(var(--s)*8.5);
+  border-radius: calc(var(--s)*2.2);
+  display: flex; align-items: center; justify-content: center;
+  font-size: calc(var(--s)*4.4); flex-shrink: 0;
+}
+.ic-red    { background: #fdeaec; color: #c8102e; }
+.ic-blue   { background: #e8f0fc; color: #2563c7; }
+.ic-green  { background: #e8f7ed; color: #1a7a3c; }
+.ic-amber  { background: #fff5e6; color: #b85c0a; }
+.ic-purple { background: #f0ecfc; color: #6c3db5; }
+.ic-teal   { background: #e5f5f5; color: #0d7a7a; }
+.ic-slate  { background: #edf0f5; color: #3a4d6e; }
 
-  /* ── HEADER ── */
-  .kh { padding: 16px 18px 14px; }
-  .kh-nav { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
-  .back {
-    display: flex; align-items: center; gap: 5px;
-    font-size: 12px; color: rgba(255,255,255,.78);
-    cursor: pointer; padding: 4px 11px; border-radius: 20px;
-    border: 1px solid rgba(255,255,255,.32); background: rgba(255,255,255,.12);
-    font-family: var(--font); transition: background .12s;
-  }
-  .back:hover { background: rgba(255,255,255,.22); }
-  .bc { font-size: 11px; color: rgba(255,255,255,.42); }
-  .kh-row { display: flex; align-items: center; gap: 12px; }
-  .kh-icon {
-    width: 42px; height: 42px; background: rgba(255,255,255,.16);
-    border-radius: 11px; display: flex; align-items: center;
-    justify-content: center; font-size: 21px; color: #fff; flex-shrink: 0;
-  }
-  .kh-t { font-size: 17px; font-weight: 500; color: #fff; line-height: 1.2; }
-  .kh-s { font-size: 11px; color: rgba(255,255,255,.58); margin-top: 2px; }
+.rinfo { flex: 1; padding-top: calc(var(--s)*0.4); }
+.rtitle {
+  font-size: calc(var(--s)*3.5); font-weight: 600;
+  color: var(--text); margin-bottom: calc(var(--s)*0.8);
+}
+.rdesc { font-size: calc(var(--s)*2.7); color: var(--muted); line-height: 1.55; }
+.div { height: 2px; background: #f0f2f5; }
 
-  /* ── BODY ── */
-  .body {
-    padding: 14px; background: var(--surface);
-    display: flex; flex-direction: column; gap: 11px; flex: 1;
-  }
-  .slabel {
-    font-size: 10px; color: #999; text-transform: uppercase;
-    letter-spacing: 1.2px; font-weight: 500;
-  }
-  .card {
-    background: #fff; border: 1px solid var(--border);
-    border-radius: 12px; padding: 13px 15px;
-    display: flex; flex-direction: column; gap: 10px;
-  }
-  .row { display: flex; align-items: flex-start; gap: 12px; }
-  .ic {
-    width: 36px; height: 36px; border-radius: 9px;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 17px; flex-shrink: 0;
-  }
-  .ic-red    { background: #fdeaec; color: #c8102e; }
-  .ic-blue   { background: #e8f0fc; color: #2563c7; }
-  .ic-green  { background: #e8f7ed; color: #1a7a3c; }
-  .ic-amber  { background: #fff5e6; color: #b85c0a; }
-  .ic-purple { background: #f0ecfc; color: #6c3db5; }
-  .ic-teal   { background: #e5f5f5; color: #0d7a7a; }
-  .ic-slate  { background: #edf0f5; color: #3a4d6e; }
+.pill-grid { display: grid; grid-template-columns: 1fr 1fr; gap: calc(var(--s)*2); }
+.pill {
+  background: #fff; border: 2px solid var(--border);
+  border-radius: calc(var(--s)*2.2);
+  padding: calc(var(--s)*2.7) calc(var(--s)*3);
+  display: flex; align-items: center;
+  gap: calc(var(--s)*2); font-size: calc(var(--s)*2.7); color: #444;
+}
+.pill i { font-size: calc(var(--s)*3.5); color: var(--red); flex-shrink: 0; }
 
-  .rinfo { flex: 1; padding-top: 1px; }
-  .rtitle { font-size: 13px; font-weight: 500; color: var(--text); margin-bottom: 3px; }
-  .rdesc  { font-size: 12px; color: var(--muted); line-height: 1.55; }
+.tag {
+  display: inline-block; font-size: calc(var(--s)*2.3);
+  padding: calc(var(--s)*0.6) calc(var(--s)*2);
+  border-radius: 999px; font-weight: 500; margin-top: calc(var(--s)*1);
+}
+.tag-red    { background: #fdeaec; color: #a00c23; }
+.tag-green  { background: #e8f7ed; color: #145e2e; }
+.tag-blue   { background: #e8f0fc; color: #1c4fa8; }
+.tag-amber  { background: #fff5e6; color: #8c4208; }
 
-  .div { height: 1px; background: #f0f2f5; }
+/* ── FOOTER ───────────────────────────────────────── */
+.kfoot {
+  background: #fff; border-top: 2px solid #eaedf1;
+  padding: calc(var(--s)*3) calc(var(--s)*6);
+  display: flex; align-items: center; justify-content: space-between; flex-shrink: 0;
+}
+.fhelp {
+  font-size: calc(var(--s)*2.7); color: var(--hint);
+  display: flex; align-items: center; gap: calc(var(--s)*1.4);
+}
+.fhelp i { font-size: calc(var(--s)*3.2); }
+.fbranch {
+  font-size: calc(var(--s)*2.5); color: #ccc;
+  display: flex; align-items: center; gap: calc(var(--s)*1);
+}
 
-  .pill-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 7px; }
-  .pill {
-    background: #fff; border: 1px solid var(--border); border-radius: 9px;
-    padding: 9px 11px; display: flex; align-items: center;
-    gap: 7px; font-size: 12px; color: #444;
-  }
-  .pill i { font-size: 14px; color: var(--red); flex-shrink: 0; }
+/* ── HOME HEADER ──────────────────────────────────── */
+.home-header {
+  background: var(--red);
+  padding: calc(var(--s)*6) calc(var(--s)*6) calc(var(--s)*4.8);
+  display: flex; flex-direction: column; gap: calc(var(--s)*3); flex-shrink: 0;
+}
+.logo-row { display: flex; align-items: center; justify-content: space-between; }
+.logo-lock { display: flex; align-items: center; gap: calc(var(--s)*2); }
+.wheat { display: flex; gap: calc(var(--s)*0.5); }
+.wl, .wr { display: flex; flex-direction: column; gap: calc(var(--s)*0.5); }
+.grain {
+  width: calc(var(--s)*1.6); height: calc(var(--s)*1.1);
+  background: #fff; border-radius: 50% 0 50% 0;
+}
+.wr .grain { border-radius: 0 50% 0 50%; }
+.logo-txt { font-size: calc(var(--s)*5.2); font-weight: 500; color: #fff; }
+.lang-row { display: flex; gap: calc(var(--s)*1.6); }
+.lp {
+  font-size: calc(var(--s)*2.5); padding: calc(var(--s)*1) calc(var(--s)*2.8);
+  border-radius: 999px; border: 2px solid rgba(255,255,255,.35);
+  color: rgba(255,255,255,.65); cursor: pointer; font-family: var(--font);
+}
+.lp.active { background: rgba(255,255,255,.2); color: #fff; border-color: rgba(255,255,255,.7); }
+.welcome-bar {
+  background: rgba(0,0,0,.13); border-radius: calc(var(--s)*2.2);
+  padding: calc(var(--s)*2.8) calc(var(--s)*4);
+  display: flex; align-items: center; justify-content: space-between;
+}
+.wt { font-size: calc(var(--s)*3.3); color: rgba(255,255,255,.92); }
+.th {
+  font-size: calc(var(--s)*2.7); color: rgba(255,255,255,.5);
+  display: flex; align-items: center; gap: calc(var(--s)*1.2);
+}
 
-  .tag {
-    display: inline-block; font-size: 10px; padding: 2px 8px;
-    border-radius: 20px; font-weight: 500; margin-top: 4px;
-  }
-  .tag-red    { background: #fdeaec; color: #a00c23; }
-  .tag-green  { background: #e8f7ed; color: #145e2e; }
-  .tag-blue   { background: #e8f0fc; color: #1c4fa8; }
-  .tag-amber  { background: #fff5e6; color: #8c4208; }
+/* ── HOME BODY ────────────────────────────────────── */
+.home-body {
+  padding: calc(var(--s)*4) calc(var(--s)*6);
+  background: var(--surface);
+  display: flex; flex-direction: column; gap: calc(var(--s)*2.8);
+  flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch;
+}
+.grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: calc(var(--s)*2.2); }
+.cat {
+  background: #fff; border: 2px solid var(--border);
+  border-radius: calc(var(--s)*2.8);
+  padding: calc(var(--s)*4) calc(var(--s)*3.5) calc(var(--s)*3.5);
+  display: flex; flex-direction: column; align-items: flex-start;
+  gap: calc(var(--s)*1.8); cursor: pointer;
+  transition: border-color .12s, background .12s;
+}
+.cat:hover, .cat:active { border-color: var(--red); background: #fff8f8; }
+.cat.wide {
+  grid-column: span 2; flex-direction: row; align-items: center;
+  gap: calc(var(--s)*3.2); padding: calc(var(--s)*3.5) calc(var(--s)*4.4);
+  border-color: #ffd0d6; background: #fff5f6;
+}
+.cat.wide:hover, .cat.wide:active { border-color: var(--red); background: #ffecee; }
+.cat.terms {
+  grid-column: span 2; flex-direction: row; align-items: center;
+  gap: calc(var(--s)*3.2); padding: calc(var(--s)*3.3) calc(var(--s)*4.4);
+  border-color: #dde6f5; background: #f4f7fd;
+}
+.cat.terms:hover, .cat.terms:active { border-color: #3b7dd8; background: #eaf0fb; }
+.cic {
+  width: calc(var(--s)*9); height: calc(var(--s)*9);
+  border-radius: calc(var(--s)*2.2);
+  display: flex; align-items: center; justify-content: center;
+  font-size: calc(var(--s)*4.4); flex-shrink: 0;
+}
+.clabel { font-size: calc(var(--s)*3.1); font-weight: 600; color: var(--text); }
+.cdesc  { font-size: calc(var(--s)*2.5); color: #888; line-height: 1.4; }
+.cbody  { flex: 1; }
+.carrow { margin-left: auto; color: #ccc; font-size: calc(var(--s)*3.6); flex-shrink: 0; }
 
-  /* ── FOOTER ── */
-  .kfoot {
-    background: #fff; border-top: 1px solid #eaedf1;
-    padding: 11px 16px; display: flex; align-items: center;
-    justify-content: space-between; margin-top: auto;
-  }
-  .fhelp   { font-size: 11px; color: var(--hint); display: flex; align-items: center; gap: 5px; }
-  .fbranch { font-size: 10px; color: #ccc; display: flex; align-items: center; gap: 4px; }
+/* ── QR CARD ──────────────────────────────────────── */
+.qr-card {
+  background: #fff; border: 2px solid var(--border);
+  border-radius: calc(var(--s)*2.8);
+  padding: calc(var(--s)*4) calc(var(--s)*4.8);
+  display: flex; align-items: center; gap: calc(var(--s)*4.4);
+}
+.qr-box {
+  width: calc(var(--s)*17); height: calc(var(--s)*17); flex-shrink: 0;
+  border: 2px solid #e0e4ea; border-radius: calc(var(--s)*1.8);
+  padding: calc(var(--s)*1.2); background: #fff;
+}
+.qr-svg { width: 100%; height: 100%; }
+.qt { font-size: calc(var(--s)*3.3); font-weight: 600; color: var(--text); margin-bottom: calc(var(--s)*1); }
+.qd { font-size: calc(var(--s)*2.7); color: var(--muted); line-height: 1.5; }
+.srow { display: flex; gap: calc(var(--s)*1.8); margin-top: calc(var(--s)*1.8); }
+.sp {
+  font-size: calc(var(--s)*2.5); padding: calc(var(--s)*1) calc(var(--s)*2.4);
+  border-radius: calc(var(--s)*1.4); border: 2px solid #e0e4ea;
+  color: #555; background: #f5f6f8;
+  display: flex; align-items: center; gap: calc(var(--s)*1);
+}
 
-  /* ── HOME ── */
-  .home-header {
-    background: var(--red); padding: 22px 20px 16px;
-    display: flex; flex-direction: column; gap: 10px;
-  }
-  .logo-row { display: flex; align-items: center; justify-content: space-between; }
-  .logo-lock { display: flex; align-items: center; gap: 9px; }
-  .wheat { display: flex; gap: 2px; }
-  .wl, .wr { display: flex; flex-direction: column; gap: 2px; }
-  .grain { width: 7px; height: 5px; background: #fff; border-radius: 50% 0 50% 0; }
-  .wr .grain { border-radius: 0 50% 0 50%; }
-  .logo-txt { font-size: 20px; font-weight: 500; color: #fff; letter-spacing: .2px; }
-  .lang-row { display: flex; gap: 5px; }
-  .lp {
-    font-size: 10px; padding: 3px 8px; border-radius: 20px;
-    border: 1px solid rgba(255,255,255,.35); color: rgba(255,255,255,.65); cursor: pointer;
-    font-family: var(--font);
-  }
-  .lp.active { background: rgba(255,255,255,.2); color: #fff; border-color: rgba(255,255,255,.7); }
-  .welcome-bar {
-    background: rgba(0,0,0,.13); border-radius: 9px;
-    padding: 10px 14px; display: flex; align-items: center; justify-content: space-between;
-  }
-  .wt   { font-size: 13px; color: rgba(255,255,255,.92); }
-  .th   { font-size: 11px; color: rgba(255,255,255,.5); display: flex; align-items: center; gap: 4px; }
-  .home-body {
-    padding: 14px; background: var(--surface);
-    display: flex; flex-direction: column; gap: 10px; flex: 1;
-  }
-  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-  .cat {
-    background: #fff; border: 1px solid var(--border); border-radius: 12px;
-    padding: 13px 12px 12px; display: flex; flex-direction: column;
-    align-items: flex-start; gap: 7px; cursor: pointer;
-    transition: border-color .12s, background .12s;
-  }
-  .cat:hover { border-color: var(--red); background: #fff8f8; }
-  .cat.wide {
-    grid-column: span 2; flex-direction: row; align-items: center;
-    gap: 12px; padding: 12px 14px; border-color: #ffd0d6; background: #fff5f6;
-  }
-  .cat.wide:hover { border-color: var(--red); background: #ffecee; }
-  .cat.terms {
-    grid-column: span 2; flex-direction: row; align-items: center;
-    gap: 12px; padding: 11px 14px; border-color: #dde6f5; background: #f4f7fd;
-  }
-  .cat.terms:hover { border-color: #3b7dd8; background: #eaf0fb; }
-  .cic {
-    width: 38px; height: 38px; border-radius: 10px;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 18px; flex-shrink: 0;
-  }
-  .clabel { font-size: 12px; font-weight: 500; color: var(--text); }
-  .cdesc  { font-size: 10px; color: #888; line-height: 1.4; }
-  .cbody  { flex: 1; }
-  .carrow { margin-left: auto; color: #ccc; font-size: 14px; flex-shrink: 0; }
+/* ── IDLE SCREEN ──────────────────────────────────── */
+.idle-screen {
+  position: absolute; inset: 0; background: var(--red);
+  display: flex; flex-direction: column; align-items: center;
+  justify-content: space-between;
+  padding: calc(var(--s)*12) calc(var(--s)*8) calc(var(--s)*10);
+  cursor: pointer; z-index: 10;
+  opacity: 0; pointer-events: none;
+  transition: opacity .7s ease;
+}
+.idle-screen.visible { opacity: 1; pointer-events: all; }
 
-  /* ── QR ── */
-  .qr-card {
-    background: #fff; border: 1px solid var(--border); border-radius: 12px;
-    padding: 13px 15px; display: flex; align-items: center; gap: 13px;
-  }
-  .qr-box {
-    width: 66px; height: 66px; flex-shrink: 0;
-    border: 1px solid #e0e4ea; border-radius: 8px; padding: 5px; background: #fff;
-  }
-  .qr-svg { width: 100%; height: 100%; }
-  .qt { font-size: 13px; font-weight: 500; color: var(--text); margin-bottom: 3px; }
-  .qd { font-size: 11px; color: var(--muted); line-height: 1.5; }
-  .srow { display: flex; gap: 6px; margin-top: 7px; }
-  .sp {
-    font-size: 10px; padding: 3px 8px; border-radius: 6px;
-    border: 1px solid #e0e4ea; color: #555; background: #f5f6f8;
-    display: flex; align-items: center; gap: 4px;
-  }
+.idle-top {
+  display: flex; flex-direction: column;
+  align-items: center; gap: calc(var(--s)*4.4); width: 100%;
+}
+.idle-logo { display: flex; align-items: center; gap: calc(var(--s)*2.6); }
+.idle-wheat { display: flex; gap: calc(var(--s)*0.7); }
+.iwl, .iwr { display: flex; flex-direction: column; gap: calc(var(--s)*0.7); }
+.igrain {
+  width: calc(var(--s)*2.2); height: calc(var(--s)*1.6);
+  background: rgba(255,255,255,.82); border-radius: 50% 0 50% 0;
+}
+.iwr .igrain { border-radius: 0 50% 0 50%; }
+.idle-logo-txt { font-size: calc(var(--s)*7); font-weight: 500; color: #fff; }
+.idle-logo-sub { font-size: calc(var(--s)*2.7); color: rgba(255,255,255,.5); letter-spacing: 0.4em; }
+.idle-divider  { width: calc(var(--s)*8); height: 2px; background: rgba(255,255,255,.2); }
+.idle-headline {
+  font-size: calc(var(--s)*7); font-weight: 600;
+  color: #fff; text-align: center; line-height: 1.25;
+}
+.msg-cycle {
+  height: calc(var(--s)*6); overflow: hidden;
+  position: relative; width: 100%;
+}
+.msg-item {
+  position: absolute; width: 100%; text-align: center;
+  font-size: calc(var(--s)*3.3); color: rgba(255,255,255,.78);
+  transition: transform .5s ease, opacity .5s ease;
+}
+.msg-item.out-up        { transform: translateY(-110%); opacity: 0; }
+.msg-item.in-from-below { transform: translateY(110%);  opacity: 0; }
 
-  /* ── IDLE SCREEN ── */
-  .idle-screen {
-    position: absolute; inset: 0; background: var(--red);
-    display: flex; flex-direction: column; align-items: center;
-    justify-content: space-between; padding: 36px 24px 30px;
-    cursor: pointer; z-index: 10;
-    opacity: 0; pointer-events: none;
-    transition: opacity .7s ease;
-  }
-  .idle-screen.visible { opacity: 1; pointer-events: all; }
+.idle-services {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: calc(var(--s)*2); width: 100%;
+}
+.idle-chip {
+  background: rgba(255,255,255,.13); border: 2px solid rgba(255,255,255,.2);
+  border-radius: calc(var(--s)*2.4);
+  padding: calc(var(--s)*2.7) calc(var(--s)*3.5);
+  display: flex; align-items: center; gap: calc(var(--s)*2);
+  color: rgba(255,255,255,.88); font-size: calc(var(--s)*3.1);
+}
+.idle-chip i { font-size: calc(var(--s)*3.7); color: rgba(255,255,255,.65); }
 
-  .idle-top { display: flex; flex-direction: column; align-items: center; gap: 16px; width: 100%; }
-  .idle-logo { display: flex; align-items: center; gap: 10px; }
-  .idle-wheat { display: flex; gap: 3px; }
-  .iwl, .iwr { display: flex; flex-direction: column; gap: 3px; }
-  .igrain { width: 10px; height: 7px; background: rgba(255,255,255,.82); border-radius: 50% 0 50% 0; }
-  .iwr .igrain { border-radius: 0 50% 0 50%; }
-  .idle-logo-txt  { font-size: 27px; font-weight: 500; color: #fff; }
-  .idle-logo-sub  { font-size: 11px; color: rgba(255,255,255,.5); letter-spacing: 2px; }
-  .idle-divider   { width: 40px; height: 1px; background: rgba(255,255,255,.2); }
-  .idle-headline  { font-size: 24px; font-weight: 500; color: #fff; text-align: center; line-height: 1.35; }
-  .idle-sub       { font-size: 13px; color: rgba(255,255,255,.62); text-align: center; line-height: 1.65; max-width: 280px; }
+.idle-tap {
+  display: flex; flex-direction: column;
+  align-items: center; gap: calc(var(--s)*2.8); width: 100%;
+}
+.idle-tap-btn {
+  background: #fff; border-radius: 999px;
+  padding: calc(var(--s)*4.2) calc(var(--s)*8);
+  font-size: calc(var(--s)*4); font-weight: 600; color: var(--red);
+  border: none; cursor: pointer; width: 100%;
+  font-family: var(--font);
+  animation: pulse 2.4s ease-in-out infinite;
+}
+.idle-tap-hint {
+  font-size: calc(var(--s)*2.7); color: rgba(255,255,255,.42);
+  display: flex; align-items: center; gap: calc(var(--s)*1.4);
+}
+.idle-clock { font-size: calc(var(--s)*2.7); color: rgba(255,255,255,.32); letter-spacing: 0.05em; }
 
-  .idle-services  { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; width: 100%; margin-top: 4px; }
-  .idle-chip {
-    background: rgba(255,255,255,.13); border: 1px solid rgba(255,255,255,.2);
-    border-radius: 10px; padding: 9px 12px; display: flex; align-items: center;
-    gap: 8px; color: rgba(255,255,255,.88); font-size: 12px;
-  }
-  .idle-chip i { font-size: 15px; color: rgba(255,255,255,.65); }
-
-  .idle-tap { display: flex; flex-direction: column; align-items: center; gap: 10px; width: 100%; }
-  .idle-tap-btn {
-    background: #fff; border-radius: 30px; padding: 15px 36px;
-    font-size: 15px; font-weight: 500; color: var(--red);
-    border: none; cursor: pointer; width: 100%;
-    font-family: var(--font);
-    animation: pulse 2.4s ease-in-out infinite;
-  }
-  .idle-tap-hint  { font-size: 11px; color: rgba(255,255,255,.42); display: flex; align-items: center; gap: 5px; }
-  .idle-clock     { font-size: 11px; color: rgba(255,255,255,.32); letter-spacing: .5px; }
-
-  .msg-cycle { height: 28px; overflow: hidden; position: relative; width: 100%; }
-  .msg-item {
-    position: absolute; width: 100%; text-align: center;
-    font-size: 14px; color: rgba(255,255,255,.78);
-    transition: transform .5s ease, opacity .5s ease;
-  }
-  .msg-item.out-up      { transform: translateY(-110%); opacity: 0; }
-  .msg-item.in-from-below { transform: translateY(110%); opacity: 0; }
-
-  @keyframes pulse {
-    0%,100% { box-shadow: 0 0 0 0 rgba(255,255,255,.38); }
-    50%      { box-shadow: 0 0 0 9px rgba(255,255,255,0); }
-  }
+@keyframes pulse {
+  0%,100% { box-shadow: 0 0 0 0    rgba(255,255,255,.4); }
+  50%      { box-shadow: 0 0 0 2vw rgba(255,255,255,0);  }
+}
 </style>
 </head>
 <body>
-<div class="wrapper">
 
-  <div class="device-bar">
-    <span class="device-bar-label">Ziraat Bank · LCD Kiosk · Sarajevo</span>
-    <span class="timer-indicator">
-      <i class="ti ti-clock" style="font-size:12px"></i>
-      <span id="timer-count">30</span>s do idle
-    </span>
+<!-- TIMER BAR -->
+<div class="timer-bar">
+  <span><i class="ti ti-map-pin"></i> Ferhadija · Sarajevo</span>
+  <span><i class="ti ti-clock"></i> <span id="timer-count">30</span>s do idle</span>
+</div>
+
+<!-- KIOSK -->
+<div class="kiosk" id="kiosk" onclick="resetTimer()">
+
+  <!-- IDLE -->
+  <div class="idle-screen" id="idle">
+    <div class="idle-top">
+      <div class="idle-logo">
+        <div class="idle-wheat">
+          <div class="iwl"><div class="igrain"></div><div class="igrain"></div><div class="igrain"></div></div>
+          <div class="iwr"><div class="igrain"></div><div class="igrain"></div><div class="igrain"></div></div>
+        </div>
+        <div class="idle-logo-txt">Ziraat Bank</div>
+      </div>
+      <div class="idle-logo-sub">SARAJEVO · BH d.d.</div>
+      <div class="idle-divider"></div>
+      <div class="idle-headline">Vaša banka.<br>Uvijek tu za vas.</div>
+      <div class="msg-cycle"><div class="msg-item" id="msg">Otvorite račun danas i počnite štedjeti.</div></div>
+      <div class="idle-services">
+        <div class="idle-chip"><i class="ti ti-wallet"></i> Računi i depoziti</div>
+        <div class="idle-chip"><i class="ti ti-home-dollar"></i> Krediti</div>
+        <div class="idle-chip"><i class="ti ti-world"></i> Doznake</div>
+        <div class="idle-chip"><i class="ti ti-device-mobile"></i> Mobilna app</div>
+      </div>
+    </div>
+    <div class="idle-tap">
+      <button class="idle-tap-btn" onclick="dismissIdle()">Dodirnite za početak</button>
+      <div class="idle-tap-hint"><i class="ti ti-hand-finger"></i> Dodirnite bilo gdje na ekranu</div>
+      <div class="idle-clock" id="idle-clock"></div>
+    </div>
   </div>
 
-  <div class="kiosk" id="kiosk" onclick="resetTimer()">
-
-    <!-- ═══════ IDLE ═══════ -->
-    <div class="idle-screen" id="idle">
-      <div class="idle-top">
-        <div class="idle-logo">
-          <div class="idle-wheat">
-            <div class="iwl"><div class="igrain"></div><div class="igrain"></div><div class="igrain"></div></div>
-            <div class="iwr"><div class="igrain"></div><div class="igrain"></div><div class="igrain"></div></div>
+  <!-- HOME -->
+  <div class="screen active" id="s-home">
+    <div class="home-header">
+      <div class="logo-row">
+        <div class="logo-lock">
+          <div class="wheat">
+            <div class="wl"><div class="grain"></div><div class="grain"></div><div class="grain"></div></div>
+            <div class="wr"><div class="grain"></div><div class="grain"></div><div class="grain"></div></div>
           </div>
-          <div class="idle-logo-txt">Ziraat Bank</div>
+          <div class="logo-txt">Ziraat Bank</div>
         </div>
-        <div class="idle-logo-sub">SARAJEVO · BH d.d.</div>
-        <div class="idle-divider"></div>
-        <div class="idle-headline">Vaša banka.<br>Uvijek tu za vas.</div>
-        <div class="msg-cycle">
-          <div class="msg-item" id="msg">Otvorite račun danas i počnite štedjeti.</div>
-        </div>
-        <div class="idle-services">
-          <div class="idle-chip"><i class="ti ti-wallet"></i> Računi i depoziti</div>
-          <div class="idle-chip"><i class="ti ti-home-dollar"></i> Krediti</div>
-          <div class="idle-chip"><i class="ti ti-world"></i> Doznake</div>
-          <div class="idle-chip"><i class="ti ti-device-mobile"></i> Mobilna app</div>
+        <div class="lang-row">
+          <div class="lp active">BOS</div>
+          <div class="lp">ENG</div>
+          <div class="lp">TUR</div>
         </div>
       </div>
-      <div class="idle-tap">
-        <button class="idle-tap-btn" onclick="dismissIdle()">Dodirnite za početak</button>
-        <div class="idle-tap-hint"><i class="ti ti-hand-finger"></i> Dodirnite bilo gdje na ekranu</div>
-        <div class="idle-clock" id="idle-clock"></div>
+      <div class="welcome-bar">
+        <div class="wt">Dobrodošli — izaberite kategoriju</div>
+        <div class="th"><i class="ti ti-hand-finger"></i> Dodirnite</div>
       </div>
     </div>
-
-    <!-- ═══════ HOME ═══════ -->
-    <div class="screen active" id="s-home">
-      <div class="home-header">
-        <div class="logo-row">
-          <div class="logo-lock">
-            <div class="wheat">
-              <div class="wl"><div class="grain"></div><div class="grain"></div><div class="grain"></div></div>
-              <div class="wr"><div class="grain"></div><div class="grain"></div><div class="grain"></div></div>
-            </div>
-            <div class="logo-txt">Ziraat Bank</div>
-          </div>
-          <div class="lang-row">
-            <div class="lp active">BOS</div>
-            <div class="lp">ENG</div>
-            <div class="lp">TUR</div>
-          </div>
-        </div>
-        <div class="welcome-bar">
-          <div class="wt">Dobrodošli — izaberite kategoriju</div>
-          <div class="th"><i class="ti ti-hand-finger"></i> Dodirnite</div>
+    <div class="home-body">
+      <div class="slabel">Proizvodi i usluge</div>
+      <div class="grid2">
+        <div class="cat" onclick="go('accounts')"><div class="cic ic-red"><i class="ti ti-wallet"></i></div><div class="clabel">Računi i depoziti</div><div class="cdesc">Tekući, štedni, oročeni</div></div>
+        <div class="cat" onclick="go('loans')"><div class="cic ic-green"><i class="ti ti-home-dollar"></i></div><div class="clabel">Krediti i zajmovi</div><div class="cdesc">Stambeni, auto, gotovinski</div></div>
+        <div class="cat" onclick="go('cards')"><div class="cic ic-amber"><i class="ti ti-credit-card"></i></div><div class="clabel">Platne kartice</div><div class="cdesc">Debitne, kreditne, prepaid</div></div>
+        <div class="cat" onclick="go('digital')"><div class="cic ic-blue"><i class="ti ti-device-mobile"></i></div><div class="clabel">Digitalno bankarstvo</div><div class="cdesc">Internet, mobilna aplikacija</div></div>
+        <div class="cat" onclick="go('business')"><div class="cic ic-teal"><i class="ti ti-building-store"></i></div><div class="clabel">Poslovno bankarstvo</div><div class="cdesc">Pravna lica, MSP</div></div>
+        <div class="cat" onclick="go('insurance')"><div class="cic ic-purple"><i class="ti ti-shield-check"></i></div><div class="clabel">Osiguranje i ulaganja</div><div class="cdesc">Zaštita, fondovi</div></div>
+        <div class="cat wide" onclick="go('transfers')">
+          <div class="cic ic-red"><i class="ti ti-world"></i></div>
+          <div class="cbody"><div class="clabel">Međunarodni transferi</div><div class="cdesc">SWIFT · SEPA · doznake prema Turskoj</div></div>
+          <div class="carrow"><i class="ti ti-chevron-right"></i></div>
         </div>
       </div>
-      <div class="home-body">
-        <div class="slabel">Proizvodi i usluge</div>
-        <div class="grid2">
-          <div class="cat" onclick="go('accounts')">
-            <div class="cic ic-red"><i class="ti ti-wallet"></i></div>
-            <div class="clabel">Računi i depoziti</div>
-            <div class="cdesc">Tekući, štedni, oročeni</div>
-          </div>
-          <div class="cat" onclick="go('loans')">
-            <div class="cic ic-green"><i class="ti ti-home-dollar"></i></div>
-            <div class="clabel">Krediti i zajmovi</div>
-            <div class="cdesc">Stambeni, auto, gotovinski</div>
-          </div>
-          <div class="cat" onclick="go('cards')">
-            <div class="cic ic-amber"><i class="ti ti-credit-card"></i></div>
-            <div class="clabel">Platne kartice</div>
-            <div class="cdesc">Debitne, kreditne, prepaid</div>
-          </div>
-          <div class="cat" onclick="go('digital')">
-            <div class="cic ic-blue"><i class="ti ti-device-mobile"></i></div>
-            <div class="clabel">Digitalno bankarstvo</div>
-            <div class="cdesc">Internet, mobilna aplikacija</div>
-          </div>
-          <div class="cat" onclick="go('business')">
-            <div class="cic ic-teal"><i class="ti ti-building-store"></i></div>
-            <div class="clabel">Poslovno bankarstvo</div>
-            <div class="cdesc">Pravna lica, MSP</div>
-          </div>
-          <div class="cat" onclick="go('insurance')">
-            <div class="cic ic-purple"><i class="ti ti-shield-check"></i></div>
-            <div class="clabel">Osiguranje i ulaganja</div>
-            <div class="cdesc">Zaštita, fondovi</div>
-          </div>
-          <div class="cat wide" onclick="go('transfers')">
-            <div class="cic ic-red"><i class="ti ti-world"></i></div>
-            <div class="cbody">
-              <div class="clabel">Međunarodni transferi</div>
-              <div class="cdesc">SWIFT · SEPA · doznake prema Turskoj</div>
-            </div>
-            <div class="carrow"><i class="ti ti-chevron-right"></i></div>
-          </div>
+      <div class="div"></div>
+      <div class="slabel">Pravne informacije</div>
+      <div class="grid2">
+        <div class="cat terms" onclick="go('terms')">
+          <div class="cic ic-slate"><i class="ti ti-file-text"></i></div>
+          <div class="cbody"><div class="clabel">Opći uvjeti poslovanja</div><div class="cdesc">Uvjeti, naknade, zaštita podataka</div></div>
+          <span class="tag tag-blue" style="margin:0 0 0 auto;flex-shrink:0">PDF</span>
+          <div class="carrow"><i class="ti ti-chevron-right"></i></div>
         </div>
+      </div>
+    </div>
+    <div class="kfoot">
+      <div class="fhelp"><i class="ti ti-headset"></i> Pomoć u poslovnici</div>
+      <div class="fbranch"><i class="ti ti-map-pin"></i> Ferhadija · Sarajevo</div>
+    </div>
+  </div>
+
+  <!-- ACCOUNTS -->
+  <div class="screen" id="s-accounts">
+    <div class="kh" style="background:#c8102e">
+      <div class="kh-nav"><div class="back" onclick="go('home')"><i class="ti ti-arrow-left"></i> Nazad</div><div class="bc">Početna / Računi i depoziti</div></div>
+      <div class="kh-row"><div class="kh-icon"><i class="ti ti-wallet"></i></div><div><div class="kh-t">Računi i depoziti</div><div class="kh-s">Tekući · Štedni · Oročeni · Devizni</div></div></div>
+    </div>
+    <div class="body">
+      <div class="slabel">Tekući računi</div>
+      <div class="card">
+        <div class="row"><div class="ic ic-red"><i class="ti ti-credit-card"></i></div><div class="rinfo"><div class="rtitle">Ziraat Standard račun</div><div class="rdesc">Svakodnevno plaćanje i upravljanje sredstvima u KM i EUR.</div><span class="tag tag-green">0 KM/mj. · besplatno</span></div></div>
         <div class="div"></div>
-        <div class="slabel">Pravne informacije</div>
-        <div class="grid2">
-          <div class="cat terms" onclick="go('terms')">
-            <div class="cic ic-slate"><i class="ti ti-file-text"></i></div>
-            <div class="cbody">
-              <div class="clabel">Opći uvjeti poslovanja</div>
-              <div class="cdesc">Uvjeti, naknade, zaštita podataka</div>
-            </div>
-            <span class="tag tag-blue" style="margin:0 0 0 auto;flex-shrink:0">PDF</span>
-            <div class="carrow"><i class="ti ti-chevron-right"></i></div>
+        <div class="row"><div class="ic ic-amber"><i class="ti ti-star"></i></div><div class="rinfo"><div class="rtitle">Ziraat Premium račun</div><div class="rdesc">Povlašteni uvjeti, besplatni transferi i Mastercard kartica.</div><span class="tag tag-amber">5 KM/mj.</span></div></div>
+      </div>
+      <div class="slabel">Štednja i depoziti</div>
+      <div class="card">
+        <div class="row"><div class="ic ic-green"><i class="ti ti-piggy-bank"></i></div><div class="rinfo"><div class="rtitle">Oročeni depozit</div><div class="rdesc">Fiksna kamatna stopa, rok 3–36 mjeseci, minimalni iznos 500 KM.</div><span class="tag tag-red">do 4,50% godišnje</span></div></div>
+        <div class="div"></div>
+        <div class="row"><div class="ic ic-blue"><i class="ti ti-world-dollar"></i></div><div class="rinfo"><div class="rtitle">Devizni depozit</div><div class="rdesc">Štednja u EUR, USD ili TRY — rok 1–24 mjeseca.</div><span class="tag tag-blue">do 3,20% godišnje</span></div></div>
+      </div>
+    </div>
+    <div class="kfoot"><div class="fhelp"><i class="ti ti-user"></i> Otvorite račun u poslovnici</div><div class="fbranch"><i class="ti ti-map-pin"></i> Ferhadija · Sarajevo</div></div>
+  </div>
+
+  <!-- LOANS -->
+  <div class="screen" id="s-loans">
+    <div class="kh" style="background:#1a7a3c">
+      <div class="kh-nav"><div class="back" onclick="go('home')"><i class="ti ti-arrow-left"></i> Nazad</div><div class="bc">Početna / Krediti i zajmovi</div></div>
+      <div class="kh-row"><div class="kh-icon"><i class="ti ti-home-dollar"></i></div><div><div class="kh-t">Krediti i zajmovi</div><div class="kh-s">Stambeni · Auto · Gotovinski · MSP</div></div></div>
+    </div>
+    <div class="body">
+      <div class="slabel">Za fizička lica</div>
+      <div class="card">
+        <div class="row"><div class="ic ic-green"><i class="ti ti-home"></i></div><div class="rinfo"><div class="rtitle">Stambeni kredit</div><div class="rdesc">Do 200.000 KM · rok do 30 godina · fiksna ili promjenjiva stopa.</div><span class="tag tag-green">od 4,99% godišnje</span></div></div>
+        <div class="div"></div>
+        <div class="row"><div class="ic ic-blue"><i class="ti ti-car"></i></div><div class="rinfo"><div class="rtitle">Auto kredit</div><div class="rdesc">Do 50.000 KM · rok do 7 godina · novo i rabljeno vozilo.</div><span class="tag tag-blue">od 5,99% godišnje</span></div></div>
+        <div class="div"></div>
+        <div class="row"><div class="ic ic-amber"><i class="ti ti-cash"></i></div><div class="rinfo"><div class="rtitle">Gotovinski kredit</div><div class="rdesc">Do 30.000 KM bez namjenskog trošenja · rok do 10 godina.</div><span class="tag tag-amber">od 6,99% godišnje</span></div></div>
+      </div>
+      <div class="slabel">Za pravna lica</div>
+      <div class="card">
+        <div class="row"><div class="ic ic-teal"><i class="ti ti-building"></i></div><div class="rinfo"><div class="rtitle">Investicioni i obrtni krediti</div><div class="rdesc">Prilagođeni uvjeti za mala i srednja preduzeća — individualna procjena.</div><span class="tag tag-green">Individualne kamate</span></div></div>
+      </div>
+    </div>
+    <div class="kfoot"><div class="fhelp"><i class="ti ti-user"></i> Zahtjev za kredit u poslovnici</div><div class="fbranch"><i class="ti ti-map-pin"></i> Ferhadija · Sarajevo</div></div>
+  </div>
+
+  <!-- CARDS -->
+  <div class="screen" id="s-cards">
+    <div class="kh" style="background:#c8102e">
+      <div class="kh-nav"><div class="back" onclick="go('home')"><i class="ti ti-arrow-left"></i> Nazad</div><div class="bc">Početna / Platne kartice</div></div>
+      <div class="kh-row"><div class="kh-icon"><i class="ti ti-credit-card"></i></div><div><div class="kh-t">Platne kartice</div><div class="kh-s">Debitne · Kreditne · Prepaid</div></div></div>
+    </div>
+    <div class="body">
+      <div class="slabel">Vrste kartica</div>
+      <div class="card">
+        <div class="row"><div class="ic ic-red"><i class="ti ti-credit-card"></i></div><div class="rinfo"><div class="rtitle">Visa Debit</div><div class="rdesc">Plaćanje putem tekućeg računa u zemlji i inozemstvu.</div><span class="tag tag-green">Besplatna uz račun</span></div></div>
+        <div class="div"></div>
+        <div class="row"><div class="ic ic-amber"><i class="ti ti-star"></i></div><div class="rinfo"><div class="rtitle">Mastercard Kreditna</div><div class="rdesc">Kreditni limit do 10.000 KM · beskamatni period 45 dana.</div><span class="tag tag-amber">Zahtjev u poslovnici</span></div></div>
+        <div class="div"></div>
+        <div class="row"><div class="ic ic-blue"><i class="ti ti-wallet"></i></div><div class="rinfo"><div class="rtitle">Prepaid kartica</div><div class="rdesc">Punjiva kartica bez bankovnog računa · idealna za online kupovinu.</div><span class="tag tag-blue">Dostupna odmah</span></div></div>
+      </div>
+      <div class="slabel">Mogućnosti</div>
+      <div class="pill-grid">
+        <div class="pill"><i class="ti ti-world"></i> 200+ zemalja</div>
+        <div class="pill"><i class="ti ti-device-mobile"></i> Apple & Google Pay</div>
+        <div class="pill"><i class="ti ti-bell"></i> SMS obavijesti</div>
+        <div class="pill"><i class="ti ti-lock"></i> Postavljanje limita</div>
+      </div>
+    </div>
+    <div class="kfoot"><div class="fhelp"><i class="ti ti-user"></i> Izdavanje kartice u poslovnici</div><div class="fbranch"><i class="ti ti-map-pin"></i> Ferhadija · Sarajevo</div></div>
+  </div>
+
+  <!-- DIGITAL -->
+  <div class="screen" id="s-digital">
+    <div class="kh" style="background:#2563c7">
+      <div class="kh-nav"><div class="back" onclick="go('home')"><i class="ti ti-arrow-left"></i> Nazad</div><div class="bc">Početna / Digitalno bankarstvo</div></div>
+      <div class="kh-row"><div class="kh-icon"><i class="ti ti-device-mobile"></i></div><div><div class="kh-t">Digitalno bankarstvo</div><div class="kh-s">Mobilna aplikacija · Internet banka</div></div></div>
+    </div>
+    <div class="body">
+      <div class="slabel">Šta možete raditi</div>
+      <div class="pill-grid">
+        <div class="pill"><i class="ti ti-eye"></i> Pregled stanja</div>
+        <div class="pill"><i class="ti ti-arrows-exchange"></i> Transferi</div>
+        <div class="pill"><i class="ti ti-file-invoice"></i> Plaćanje računa</div>
+        <div class="pill"><i class="ti ti-credit-card"></i> Upravljanje karticama</div>
+        <div class="pill"><i class="ti ti-world"></i> Doznake u inozemstvo</div>
+        <div class="pill"><i class="ti ti-file-text"></i> Preuzimanje izvoda</div>
+      </div>
+      <div class="slabel">Kanali pristupa</div>
+      <div class="card">
+        <div class="row"><div class="ic ic-red"><i class="ti ti-device-mobile"></i></div><div class="rinfo"><div class="rtitle">Ziraat Mobile</div><div class="rdesc">Besplatna aplikacija za iOS i Android. Aktivacija u poslovnici uz ličnu kartu.</div></div></div>
+        <div class="div"></div>
+        <div class="row"><div class="ic ic-blue"><i class="ti ti-browser"></i></div><div class="rinfo"><div class="rtitle">Internet banka</div><div class="rdesc">Pristup putem web preglednika na ebank.ziraatbank.ba — 24 sata, 7 dana.</div></div></div>
+      </div>
+      <div class="slabel">Preuzmite aplikaciju</div>
+      <div class="qr-card">
+        <div class="qr-box">
+          <svg class="qr-svg" viewBox="0 0 21 21" xmlns="http://www.w3.org/2000/svg">
+            <rect width="21" height="21" fill="#fff"/>
+            <rect x="1" y="1" width="7" height="7" fill="none" stroke="#111" stroke-width="1"/><rect x="2" y="2" width="5" height="5" fill="#111"/>
+            <rect x="13" y="1" width="7" height="7" fill="none" stroke="#111" stroke-width="1"/><rect x="14" y="2" width="5" height="5" fill="#111"/>
+            <rect x="1" y="13" width="7" height="7" fill="none" stroke="#111" stroke-width="1"/><rect x="2" y="14" width="5" height="5" fill="#111"/>
+            <rect x="9" y="1" width="1" height="1" fill="#111"/><rect x="11" y="1" width="1" height="1" fill="#111"/><rect x="10" y="3" width="1" height="1" fill="#111"/><rect x="9" y="5" width="2" height="1" fill="#111"/><rect x="12" y="4" width="1" height="2" fill="#111"/><rect x="9" y="9" width="3" height="1" fill="#111"/><rect x="13" y="9" width="1" height="3" fill="#111"/><rect x="15" y="9" width="2" height="1" fill="#111"/><rect x="18" y="9" width="2" height="2" fill="#111"/><rect x="9" y="11" width="2" height="1" fill="#111"/><rect x="9" y="13" width="1" height="2" fill="#111"/><rect x="11" y="14" width="2" height="1" fill="#111"/><rect x="15" y="12" width="1" height="2" fill="#111"/><rect x="17" y="11" width="1" height="3" fill="#111"/><rect x="19" y="13" width="1" height="2" fill="#111"/><rect x="11" y="16" width="3" height="1" fill="#111"/><rect x="15" y="15" width="2" height="2" fill="#111"/><rect x="18" y="16" width="2" height="3" fill="#111"/>
+          </svg>
+        </div>
+        <div>
+          <div class="qt">Skenirajte za preuzimanje</div>
+          <div class="qd">Ili potražite "Ziraat Mobile" u prodavnici aplikacija.</div>
+          <div class="srow">
+            <div class="sp"><i class="ti ti-brand-apple"></i> App Store</div>
+            <div class="sp"><i class="ti ti-brand-google-play"></i> Google Play</div>
           </div>
         </div>
       </div>
-      <div class="kfoot">
-        <div class="fhelp"><i class="ti ti-headset" style="font-size:13px"></i> Pomoć u poslovnici</div>
-        <div class="fbranch"><i class="ti ti-map-pin" style="font-size:12px"></i> Ferhadija · Sarajevo</div>
+    </div>
+    <div class="kfoot"><div class="fhelp"><i class="ti ti-headset"></i> Aktivacija u poslovnici</div><div class="fbranch"><i class="ti ti-map-pin"></i> Ferhadija · Sarajevo</div></div>
+  </div>
+
+  <!-- BUSINESS -->
+  <div class="screen" id="s-business">
+    <div class="kh" style="background:#0d7a7a">
+      <div class="kh-nav"><div class="back" onclick="go('home')"><i class="ti ti-arrow-left"></i> Nazad</div><div class="bc">Početna / Poslovno bankarstvo</div></div>
+      <div class="kh-row"><div class="kh-icon"><i class="ti ti-building-store"></i></div><div><div class="kh-t">Poslovno bankarstvo</div><div class="kh-s">Pravna lica · MSP · Poduzetnici</div></div></div>
+    </div>
+    <div class="body">
+      <div class="slabel">Usluge za poslovne klijente</div>
+      <div class="card">
+        <div class="row"><div class="ic ic-teal"><i class="ti ti-building"></i></div><div class="rinfo"><div class="rtitle">Poslovni tekući račun</div><div class="rdesc">Upravljanje finansijama firme s povoljnim naknadama i internet bankarstvom.</div></div></div>
+        <div class="div"></div>
+        <div class="row"><div class="ic ic-blue"><i class="ti ti-receipt"></i></div><div class="rinfo"><div class="rtitle">Krediti za MSP</div><div class="rdesc">Investicioni i obrtni krediti za mala i srednja preduzeća.</div><span class="tag tag-blue">Povoljne kamate</span></div></div>
+        <div class="div"></div>
+        <div class="row"><div class="ic ic-amber"><i class="ti ti-world"></i></div><div class="rinfo"><div class="rtitle">Trade finance</div><div class="rdesc">Akreditivi, garancije i dokumentarni inkaso za uvoz i izvoz.</div></div></div>
+        <div class="div"></div>
+        <div class="row"><div class="ic ic-green"><i class="ti ti-arrows-exchange"></i></div><div class="rinfo"><div class="rtitle">Devizno poslovanje</div><div class="rdesc">Kupoprodaja deviza, devizni računi i međunarodni platni promet.</div></div></div>
       </div>
     </div>
+    <div class="kfoot"><div class="fhelp"><i class="ti ti-headset"></i> Konsultacije s poslovnim savjetnikom</div><div class="fbranch"><i class="ti ti-map-pin"></i> Ferhadija · Sarajevo</div></div>
+  </div>
 
-    <!-- ═══════ ACCOUNTS ═══════ -->
-    <div class="screen" id="s-accounts">
-      <div class="kh" style="background:#c8102e">
-        <div class="kh-nav">
-          <div class="back" onclick="go('home')"><i class="ti ti-arrow-left" style="font-size:13px"></i> Nazad</div>
-          <div class="bc">Početna / Računi i depoziti</div>
-        </div>
-        <div class="kh-row">
-          <div class="kh-icon"><i class="ti ti-wallet"></i></div>
-          <div><div class="kh-t">Računi i depoziti</div><div class="kh-s">Tekući · Štedni · Oročeni · Devizni</div></div>
-        </div>
-      </div>
-      <div class="body">
-        <div class="slabel">Tekući računi</div>
-        <div class="card">
-          <div class="row"><div class="ic ic-red"><i class="ti ti-credit-card"></i></div><div class="rinfo"><div class="rtitle">Ziraat Standard račun</div><div class="rdesc">Svakodnevno plaćanje i upravljanje sredstvima u KM i EUR.</div><span class="tag tag-green">0 KM/mj. · besplatno</span></div></div>
-          <div class="div"></div>
-          <div class="row"><div class="ic ic-amber"><i class="ti ti-star"></i></div><div class="rinfo"><div class="rtitle">Ziraat Premium račun</div><div class="rdesc">Povlašteni uvjeti, besplatni transferi i Mastercard kartica.</div><span class="tag tag-amber">5 KM/mj.</span></div></div>
-        </div>
-        <div class="slabel">Štednja i depoziti</div>
-        <div class="card">
-          <div class="row"><div class="ic ic-green"><i class="ti ti-piggy-bank"></i></div><div class="rinfo"><div class="rtitle">Oročeni depozit</div><div class="rdesc">Fiksna kamatna stopa, rok 3–36 mjeseci, minimalni iznos 500 KM.</div><span class="tag tag-red">do 4,50% godišnje</span></div></div>
-          <div class="div"></div>
-          <div class="row"><div class="ic ic-blue"><i class="ti ti-world-dollar"></i></div><div class="rinfo"><div class="rtitle">Devizni depozit</div><div class="rdesc">Štednja u EUR, USD ili TRY — rok 1–24 mjeseca.</div><span class="tag tag-blue">do 3,20% godišnje</span></div></div>
-        </div>
-      </div>
-      <div class="kfoot">
-        <div class="fhelp"><i class="ti ti-user" style="font-size:13px"></i> Otvorite račun u poslovnici</div>
-        <div class="fbranch"><i class="ti ti-map-pin" style="font-size:12px"></i> Ferhadija · Sarajevo</div>
+  <!-- INSURANCE -->
+  <div class="screen" id="s-insurance">
+    <div class="kh" style="background:#6c3db5">
+      <div class="kh-nav"><div class="back" onclick="go('home')"><i class="ti ti-arrow-left"></i> Nazad</div><div class="bc">Početna / Osiguranje i ulaganja</div></div>
+      <div class="kh-row"><div class="kh-icon"><i class="ti ti-shield-check"></i></div><div><div class="kh-t">Osiguranje i ulaganja</div><div class="kh-s">Zaštita · Štednja · Fondovi</div></div></div>
+    </div>
+    <div class="body">
+      <div class="slabel">Proizvodi</div>
+      <div class="card">
+        <div class="row"><div class="ic ic-purple"><i class="ti ti-shield"></i></div><div class="rinfo"><div class="rtitle">Životno osiguranje</div><div class="rdesc">Zaštita za vas i vašu porodicu u partnerstvu s osiguravajućim kućama.</div></div></div>
+        <div class="div"></div>
+        <div class="row"><div class="ic ic-blue"><i class="ti ti-home"></i></div><div class="rinfo"><div class="rtitle">Osiguranje nekretnina</div><div class="rdesc">Zaštita imovine od elementarnih nepogoda i šteta, uz stambeni kredit.</div></div></div>
+        <div class="div"></div>
+        <div class="row"><div class="ic ic-green"><i class="ti ti-chart-line"></i></div><div class="rinfo"><div class="rtitle">Investicijski fondovi</div><div class="rdesc">Ulaganje u domaće i međunarodne fondove s profesionalnim upravljanjem.</div><span class="tag tag-green">Individualne konsultacije</span></div></div>
       </div>
     </div>
+    <div class="kfoot"><div class="fhelp"><i class="ti ti-headset"></i> Razgovarajte s našim savjetnikom</div><div class="fbranch"><i class="ti ti-map-pin"></i> Ferhadija · Sarajevo</div></div>
+  </div>
 
-    <!-- ═══════ LOANS ═══════ -->
-    <div class="screen" id="s-loans">
-      <div class="kh" style="background:#1a7a3c">
-        <div class="kh-nav">
-          <div class="back" onclick="go('home')"><i class="ti ti-arrow-left" style="font-size:13px"></i> Nazad</div>
-          <div class="bc">Početna / Krediti i zajmovi</div>
-        </div>
-        <div class="kh-row">
-          <div class="kh-icon"><i class="ti ti-home-dollar"></i></div>
-          <div><div class="kh-t">Krediti i zajmovi</div><div class="kh-s">Stambeni · Auto · Gotovinski · MSP</div></div>
-        </div>
+  <!-- TRANSFERS -->
+  <div class="screen" id="s-transfers">
+    <div class="kh" style="background:#c8102e">
+      <div class="kh-nav"><div class="back" onclick="go('home')"><i class="ti ti-arrow-left"></i> Nazad</div><div class="bc">Početna / Međunarodni transferi</div></div>
+      <div class="kh-row"><div class="kh-icon"><i class="ti ti-world"></i></div><div><div class="kh-t">Međunarodni transferi</div><div class="kh-s">SWIFT · SEPA · Doznake prema Turskoj</div></div></div>
+    </div>
+    <div class="body">
+      <div class="slabel">Vrste transfera</div>
+      <div class="card">
+        <div class="row"><div class="ic ic-blue"><i class="ti ti-building-bank"></i></div><div class="rinfo"><div class="rtitle">SWIFT transfer</div><div class="rdesc">Slanje novca u bilo koju zemlju u svijetu putem SWIFT mreže.</div><span class="tag tag-blue">1–3 radna dana</span></div></div>
+        <div class="div"></div>
+        <div class="row"><div class="ic ic-green"><i class="ti ti-arrow-right"></i></div><div class="rinfo"><div class="rtitle">SEPA transfer</div><div class="rdesc">Brzi transferi unutar evropskog platnog prostora.</div><span class="tag tag-green">Isti ili naredni dan</span></div></div>
+        <div class="div"></div>
+        <div class="row"><div class="ic ic-red"><i class="ti ti-heart"></i></div><div class="rinfo"><div class="rtitle">Doznake prema Turskoj</div><div class="rdesc">Posebna veza s Türkiye Cumhuriyet Ziraat Bankası — povoljne naknade i brz prijenos.</div><span class="tag tag-red">Prednost Ziraat banke</span></div></div>
       </div>
-      <div class="body">
-        <div class="slabel">Za fizička lica</div>
-        <div class="card">
-          <div class="row"><div class="ic ic-green"><i class="ti ti-home"></i></div><div class="rinfo"><div class="rtitle">Stambeni kredit</div><div class="rdesc">Do 200.000 KM · rok do 30 godina · fiksna ili promjenjiva stopa.</div><span class="tag tag-green">od 4,99% godišnje</span></div></div>
-          <div class="div"></div>
-          <div class="row"><div class="ic ic-blue"><i class="ti ti-car"></i></div><div class="rinfo"><div class="rtitle">Auto kredit</div><div class="rdesc">Do 50.000 KM · rok do 7 godina · novo i rabljeno vozilo.</div><span class="tag tag-blue">od 5,99% godišnje</span></div></div>
-          <div class="div"></div>
-          <div class="row"><div class="ic ic-amber"><i class="ti ti-cash"></i></div><div class="rinfo"><div class="rtitle">Gotovinski kredit</div><div class="rdesc">Do 30.000 KM bez namjenskog trošenja · rok do 10 godina.</div><span class="tag tag-amber">od 6,99% godišnje</span></div></div>
-        </div>
-        <div class="slabel">Za pravna lica</div>
-        <div class="card">
-          <div class="row"><div class="ic ic-teal"><i class="ti ti-building"></i></div><div class="rinfo"><div class="rtitle">Investicioni i obrtni krediti</div><div class="rdesc">Prilagođeni uvjeti za mala i srednja preduzeća — individualna procjena.</div><span class="tag tag-green">Individualne kamate</span></div></div>
-        </div>
-      </div>
-      <div class="kfoot">
-        <div class="fhelp"><i class="ti ti-user" style="font-size:13px"></i> Zahtjev za kredit u poslovnici</div>
-        <div class="fbranch"><i class="ti ti-map-pin" style="font-size:12px"></i> Ferhadija · Sarajevo</div>
+      <div class="slabel">Potrebni podaci za transfer</div>
+      <div class="pill-grid">
+        <div class="pill"><i class="ti ti-id-badge"></i> IBAN primatelja</div>
+        <div class="pill"><i class="ti ti-building"></i> BIC / SWIFT kod</div>
+        <div class="pill"><i class="ti ti-user"></i> Ime i adresa</div>
+        <div class="pill"><i class="ti ti-file-text"></i> Svrha plaćanja</div>
       </div>
     </div>
+    <div class="kfoot"><div class="fhelp"><i class="ti ti-user"></i> Uputite transfer u poslovnici</div><div class="fbranch"><i class="ti ti-map-pin"></i> Ferhadija · Sarajevo</div></div>
+  </div>
 
-    <!-- ═══════ CARDS ═══════ -->
-    <div class="screen" id="s-cards">
-      <div class="kh" style="background:#c8102e">
-        <div class="kh-nav">
-          <div class="back" onclick="go('home')"><i class="ti ti-arrow-left" style="font-size:13px"></i> Nazad</div>
-          <div class="bc">Početna / Platne kartice</div>
-        </div>
-        <div class="kh-row">
-          <div class="kh-icon"><i class="ti ti-credit-card"></i></div>
-          <div><div class="kh-t">Platne kartice</div><div class="kh-s">Debitne · Kreditne · Prepaid</div></div>
-        </div>
+  <!-- TERMS -->
+  <div class="screen" id="s-terms">
+    <div class="kh" style="background:#3a4d6e">
+      <div class="kh-nav"><div class="back" onclick="go('home')"><i class="ti ti-arrow-left"></i> Nazad</div><div class="bc">Početna / Opći uvjeti poslovanja</div></div>
+      <div class="kh-row"><div class="kh-icon"><i class="ti ti-file-text"></i></div><div><div class="kh-t">Opći uvjeti poslovanja</div><div class="kh-s">Uvjeti · Naknade · Zaštita podataka</div></div></div>
+    </div>
+    <div class="body">
+      <div class="slabel">Dokumenti</div>
+      <div class="card">
+        <div class="row"><div class="ic ic-slate"><i class="ti ti-file-description"></i></div><div class="rinfo"><div class="rtitle">Opći uvjeti za fizička lica</div><div class="rdesc">Uvjeti otvaranja i vođenja računa, depozita i kartičnog poslovanja.</div><span class="tag tag-blue">PDF dostupan na šalteru</span></div></div>
+        <div class="div"></div>
+        <div class="row"><div class="ic ic-slate"><i class="ti ti-file-description"></i></div><div class="rinfo"><div class="rtitle">Opći uvjeti za pravna lica</div><div class="rdesc">Uvjeti poslovnih računa, kreditnih linija i trade finance usluga.</div><span class="tag tag-blue">PDF dostupan na šalteru</span></div></div>
+        <div class="div"></div>
+        <div class="row"><div class="ic ic-red"><i class="ti ti-lock"></i></div><div class="rinfo"><div class="rtitle">Zaštita osobnih podataka</div><div class="rdesc">Politika privatnosti i GDPR uvjeti u skladu s propisima FBiH i EU.</div></div></div>
+        <div class="div"></div>
+        <div class="row"><div class="ic ic-amber"><i class="ti ti-coin"></i></div><div class="rinfo"><div class="rtitle">Tarifa naknada i usluga</div><div class="rdesc">Pregled svih naknada za usluge banke — ažurirano 01.01.2026.</div><span class="tag tag-amber">Važeće od 01.01.2026.</span></div></div>
       </div>
-      <div class="body">
-        <div class="slabel">Vrste kartica</div>
-        <div class="card">
-          <div class="row"><div class="ic ic-red"><i class="ti ti-credit-card"></i></div><div class="rinfo"><div class="rtitle">Visa Debit</div><div class="rdesc">Plaćanje putem tekućeg računa u zemlji i inozemstvu.</div><span class="tag tag-green">Besplatna uz račun</span></div></div>
-          <div class="div"></div>
-          <div class="row"><div class="ic ic-amber"><i class="ti ti-star"></i></div><div class="rinfo"><div class="rtitle">Mastercard Kreditna</div><div class="rdesc">Kreditni limit do 10.000 KM · beskamatni period 45 dana.</div><span class="tag tag-amber">Zahtjev u poslovnici</span></div></div>
-          <div class="div"></div>
-          <div class="row"><div class="ic ic-blue"><i class="ti ti-wallet"></i></div><div class="rinfo"><div class="rtitle">Prepaid kartica</div><div class="rdesc">Punjiva kartica bez bankovnog računa · idealna za online kupovinu.</div><span class="tag tag-blue">Dostupna odmah</span></div></div>
-        </div>
-        <div class="slabel">Mogućnosti</div>
-        <div class="pill-grid">
-          <div class="pill"><i class="ti ti-world"></i> 200+ zemalja</div>
-          <div class="pill"><i class="ti ti-device-mobile"></i> Apple & Google Pay</div>
-          <div class="pill"><i class="ti ti-bell"></i> SMS obavijesti</div>
-          <div class="pill"><i class="ti ti-lock"></i> Postavljanje limita</div>
-        </div>
-      </div>
-      <div class="kfoot">
-        <div class="fhelp"><i class="ti ti-user" style="font-size:13px"></i> Izdavanje kartice u poslovnici</div>
-        <div class="fbranch"><i class="ti ti-map-pin" style="font-size:12px"></i> Ferhadija · Sarajevo</div>
+      <div class="slabel">Pritužbe i prijedlozi</div>
+      <div class="card">
+        <div class="row"><div class="ic ic-green"><i class="ti ti-message-dots"></i></div><div class="rinfo"><div class="rtitle">Podnošenje pritužbe</div><div class="rdesc">Pismenim putem na šalteru, e-mailom ili poštom. Odgovaramo u roku od 15 radnih dana.</div></div></div>
       </div>
     </div>
+    <div class="kfoot"><div class="fhelp"><i class="ti ti-printer"></i> Dokumenti dostupni na šalteru</div><div class="fbranch"><i class="ti ti-map-pin"></i> Ferhadija · Sarajevo</div></div>
+  </div>
 
-    <!-- ═══════ DIGITAL ═══════ -->
-    <div class="screen" id="s-digital">
-      <div class="kh" style="background:#2563c7">
-        <div class="kh-nav">
-          <div class="back" onclick="go('home')"><i class="ti ti-arrow-left" style="font-size:13px"></i> Nazad</div>
-          <div class="bc">Početna / Digitalno bankarstvo</div>
-        </div>
-        <div class="kh-row">
-          <div class="kh-icon"><i class="ti ti-device-mobile"></i></div>
-          <div><div class="kh-t">Digitalno bankarstvo</div><div class="kh-s">Mobilna aplikacija · Internet banka</div></div>
-        </div>
-      </div>
-      <div class="body">
-        <div class="slabel">Šta možete raditi</div>
-        <div class="pill-grid">
-          <div class="pill"><i class="ti ti-eye"></i> Pregled stanja</div>
-          <div class="pill"><i class="ti ti-arrows-exchange"></i> Transferi</div>
-          <div class="pill"><i class="ti ti-file-invoice"></i> Plaćanje računa</div>
-          <div class="pill"><i class="ti ti-credit-card"></i> Upravljanje karticama</div>
-          <div class="pill"><i class="ti ti-world"></i> Doznake u inozemstvo</div>
-          <div class="pill"><i class="ti ti-file-text"></i> Preuzimanje izvoda</div>
-        </div>
-        <div class="slabel">Kanali pristupa</div>
-        <div class="card">
-          <div class="row"><div class="ic ic-red"><i class="ti ti-device-mobile"></i></div><div class="rinfo"><div class="rtitle">Ziraat Mobile</div><div class="rdesc">Besplatna aplikacija za iOS i Android. Aktivacija u poslovnici uz ličnu kartu.</div></div></div>
-          <div class="div"></div>
-          <div class="row"><div class="ic ic-blue"><i class="ti ti-browser"></i></div><div class="rinfo"><div class="rtitle">Internet banka</div><div class="rdesc">Pristup putem web preglednika na ebank.ziraatbank.ba — 24 sata, 7 dana.</div></div></div>
-        </div>
-        <div class="slabel">Preuzmite aplikaciju</div>
-        <div class="qr-card">
-          <div class="qr-box">
-            <svg class="qr-svg" viewBox="0 0 21 21" xmlns="http://www.w3.org/2000/svg">
-              <rect width="21" height="21" fill="#fff"/>
-              <rect x="1" y="1" width="7" height="7" fill="none" stroke="#111" stroke-width="1"/>
-              <rect x="2" y="2" width="5" height="5" fill="#111"/>
-              <rect x="13" y="1" width="7" height="7" fill="none" stroke="#111" stroke-width="1"/>
-              <rect x="14" y="2" width="5" height="5" fill="#111"/>
-              <rect x="1" y="13" width="7" height="7" fill="none" stroke="#111" stroke-width="1"/>
-              <rect x="2" y="14" width="5" height="5" fill="#111"/>
-              <rect x="9" y="1" width="1" height="1" fill="#111"/><rect x="11" y="1" width="1" height="1" fill="#111"/>
-              <rect x="10" y="3" width="1" height="1" fill="#111"/><rect x="9" y="5" width="2" height="1" fill="#111"/>
-              <rect x="12" y="4" width="1" height="2" fill="#111"/><rect x="9" y="9" width="3" height="1" fill="#111"/>
-              <rect x="13" y="9" width="1" height="3" fill="#111"/><rect x="15" y="9" width="2" height="1" fill="#111"/>
-              <rect x="18" y="9" width="2" height="2" fill="#111"/><rect x="9" y="11" width="2" height="1" fill="#111"/>
-              <rect x="9" y="13" width="1" height="2" fill="#111"/><rect x="11" y="14" width="2" height="1" fill="#111"/>
-              <rect x="15" y="12" width="1" height="2" fill="#111"/><rect x="17" y="11" width="1" height="3" fill="#111"/>
-              <rect x="19" y="13" width="1" height="2" fill="#111"/><rect x="11" y="16" width="3" height="1" fill="#111"/>
-              <rect x="15" y="15" width="2" height="2" fill="#111"/><rect x="18" y="16" width="2" height="3" fill="#111"/>
-            </svg>
-          </div>
-          <div>
-            <div class="qt">Skenirajte za preuzimanje</div>
-            <div class="qd">Ili potražite "Ziraat Mobile" u prodavnici aplikacija.</div>
-            <div class="srow">
-              <div class="sp"><i class="ti ti-brand-apple" style="font-size:12px"></i> App Store</div>
-              <div class="sp"><i class="ti ti-brand-google-play" style="font-size:12px"></i> Google Play</div>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="kfoot">
-        <div class="fhelp"><i class="ti ti-headset" style="font-size:13px"></i> Aktivacija u poslovnici</div>
-        <div class="fbranch"><i class="ti ti-map-pin" style="font-size:12px"></i> Ferhadija · Sarajevo</div>
-      </div>
-    </div>
-
-    <!-- ═══════ BUSINESS ═══════ -->
-    <div class="screen" id="s-business">
-      <div class="kh" style="background:#0d7a7a">
-        <div class="kh-nav">
-          <div class="back" onclick="go('home')"><i class="ti ti-arrow-left" style="font-size:13px"></i> Nazad</div>
-          <div class="bc">Početna / Poslovno bankarstvo</div>
-        </div>
-        <div class="kh-row">
-          <div class="kh-icon"><i class="ti ti-building-store"></i></div>
-          <div><div class="kh-t">Poslovno bankarstvo</div><div class="kh-s">Pravna lica · MSP · Poduzetnici</div></div>
-        </div>
-      </div>
-      <div class="body">
-        <div class="slabel">Usluge za poslovne klijente</div>
-        <div class="card">
-          <div class="row"><div class="ic ic-teal"><i class="ti ti-building"></i></div><div class="rinfo"><div class="rtitle">Poslovni tekući račun</div><div class="rdesc">Upravljanje finansijama firme s povoljnim naknadama i internet bankarstvom.</div></div></div>
-          <div class="div"></div>
-          <div class="row"><div class="ic ic-blue"><i class="ti ti-receipt"></i></div><div class="rinfo"><div class="rtitle">Krediti za MSP</div><div class="rdesc">Investicioni i obrtni krediti za mala i srednja preduzeća.</div><span class="tag tag-blue">Povoljne kamate</span></div></div>
-          <div class="div"></div>
-          <div class="row"><div class="ic ic-amber"><i class="ti ti-world"></i></div><div class="rinfo"><div class="rtitle">Trade finance</div><div class="rdesc">Akreditivi, garancije i dokumentarni inkaso za uvoz i izvoz.</div></div></div>
-          <div class="div"></div>
-          <div class="row"><div class="ic ic-green"><i class="ti ti-arrows-exchange"></i></div><div class="rinfo"><div class="rtitle">Devizno poslovanje</div><div class="rdesc">Kupoprodaja deviza, devizni računi i međunarodni platni promet.</div></div></div>
-        </div>
-      </div>
-      <div class="kfoot">
-        <div class="fhelp"><i class="ti ti-headset" style="font-size:13px"></i> Konsultacije s poslovnim savjetnikom</div>
-        <div class="fbranch"><i class="ti ti-map-pin" style="font-size:12px"></i> Ferhadija · Sarajevo</div>
-      </div>
-    </div>
-
-    <!-- ═══════ INSURANCE ═══════ -->
-    <div class="screen" id="s-insurance">
-      <div class="kh" style="background:#6c3db5">
-        <div class="kh-nav">
-          <div class="back" onclick="go('home')"><i class="ti ti-arrow-left" style="font-size:13px"></i> Nazad</div>
-          <div class="bc">Početna / Osiguranje i ulaganja</div>
-        </div>
-        <div class="kh-row">
-          <div class="kh-icon"><i class="ti ti-shield-check"></i></div>
-          <div><div class="kh-t">Osiguranje i ulaganja</div><div class="kh-s">Zaštita · Štednja · Fondovi</div></div>
-        </div>
-      </div>
-      <div class="body">
-        <div class="slabel">Proizvodi</div>
-        <div class="card">
-          <div class="row"><div class="ic ic-purple"><i class="ti ti-shield"></i></div><div class="rinfo"><div class="rtitle">Životno osiguranje</div><div class="rdesc">Zaštita za vas i vašu porodicu u partnerstvu s osiguravajućim kućama.</div></div></div>
-          <div class="div"></div>
-          <div class="row"><div class="ic ic-blue"><i class="ti ti-home"></i></div><div class="rinfo"><div class="rtitle">Osiguranje nekretnina</div><div class="rdesc">Zaštita imovine od elementarnih nepogoda i šteta, uz stambeni kredit.</div></div></div>
-          <div class="div"></div>
-          <div class="row"><div class="ic ic-green"><i class="ti ti-chart-line"></i></div><div class="rinfo"><div class="rtitle">Investicijski fondovi</div><div class="rdesc">Ulaganje u domaće i međunarodne fondove s profesionalnim upravljanjem.</div><span class="tag tag-green">Individualne konsultacije</span></div></div>
-        </div>
-      </div>
-      <div class="kfoot">
-        <div class="fhelp"><i class="ti ti-headset" style="font-size:13px"></i> Razgovarajte s našim savjetnikom</div>
-        <div class="fbranch"><i class="ti ti-map-pin" style="font-size:12px"></i> Ferhadija · Sarajevo</div>
-      </div>
-    </div>
-
-    <!-- ═══════ TRANSFERS ═══════ -->
-    <div class="screen" id="s-transfers">
-      <div class="kh" style="background:#c8102e">
-        <div class="kh-nav">
-          <div class="back" onclick="go('home')"><i class="ti ti-arrow-left" style="font-size:13px"></i> Nazad</div>
-          <div class="bc">Početna / Međunarodni transferi</div>
-        </div>
-        <div class="kh-row">
-          <div class="kh-icon"><i class="ti ti-world"></i></div>
-          <div><div class="kh-t">Međunarodni transferi</div><div class="kh-s">SWIFT · SEPA · Doznake prema Turskoj</div></div>
-        </div>
-      </div>
-      <div class="body">
-        <div class="slabel">Vrste transfera</div>
-        <div class="card">
-          <div class="row"><div class="ic ic-blue"><i class="ti ti-building-bank"></i></div><div class="rinfo"><div class="rtitle">SWIFT transfer</div><div class="rdesc">Slanje novca u bilo koju zemlju u svijetu putem SWIFT mreže.</div><span class="tag tag-blue">1–3 radna dana</span></div></div>
-          <div class="div"></div>
-          <div class="row"><div class="ic ic-green"><i class="ti ti-arrow-right"></i></div><div class="rinfo"><div class="rtitle">SEPA transfer</div><div class="rdesc">Brzi transferi unutar evropskog platnog prostora.</div><span class="tag tag-green">Isti ili naredni dan</span></div></div>
-          <div class="div"></div>
-          <div class="row"><div class="ic ic-red"><i class="ti ti-heart"></i></div><div class="rinfo"><div class="rtitle">Doznake prema Turskoj</div><div class="rdesc">Posebna veza s Türkiye Cumhuriyet Ziraat Bankası — povoljne naknade i brz prijenos.</div><span class="tag tag-red">Prednost Ziraat banke</span></div></div>
-        </div>
-        <div class="slabel">Potrebni podaci za transfer</div>
-        <div class="pill-grid">
-          <div class="pill"><i class="ti ti-id-badge"></i> IBAN primatelja</div>
-          <div class="pill"><i class="ti ti-building"></i> BIC / SWIFT kod</div>
-          <div class="pill"><i class="ti ti-user"></i> Ime i adresa</div>
-          <div class="pill"><i class="ti ti-file-text"></i> Svrha plaćanja</div>
-        </div>
-      </div>
-      <div class="kfoot">
-        <div class="fhelp"><i class="ti ti-user" style="font-size:13px"></i> Uputite transfer u poslovnici</div>
-        <div class="fbranch"><i class="ti ti-map-pin" style="font-size:12px"></i> Ferhadija · Sarajevo</div>
-      </div>
-    </div>
-
-    <!-- ═══════ TERMS ═══════ -->
-    <div class="screen" id="s-terms">
-      <div class="kh" style="background:#3a4d6e">
-        <div class="kh-nav">
-          <div class="back" onclick="go('home')"><i class="ti ti-arrow-left" style="font-size:13px"></i> Nazad</div>
-          <div class="bc">Početna / Opći uvjeti poslovanja</div>
-        </div>
-        <div class="kh-row">
-          <div class="kh-icon"><i class="ti ti-file-text"></i></div>
-          <div><div class="kh-t">Opći uvjeti poslovanja</div><div class="kh-s">Uvjeti · Naknade · Zaštita podataka</div></div>
-        </div>
-      </div>
-      <div class="body">
-        <div class="slabel">Dokumenti</div>
-        <div class="card">
-          <div class="row"><div class="ic ic-slate"><i class="ti ti-file-description"></i></div><div class="rinfo"><div class="rtitle">Opći uvjeti za fizička lica</div><div class="rdesc">Uvjeti otvaranja i vođenja računa, depozita i kartičnog poslovanja.</div><span class="tag tag-blue">PDF dostupan na šalteru</span></div></div>
-          <div class="div"></div>
-          <div class="row"><div class="ic ic-slate"><i class="ti ti-file-description"></i></div><div class="rinfo"><div class="rtitle">Opći uvjeti za pravna lica</div><div class="rdesc">Uvjeti poslovnih računa, kreditnih linija i trade finance usluga.</div><span class="tag tag-blue">PDF dostupan na šalteru</span></div></div>
-          <div class="div"></div>
-          <div class="row"><div class="ic ic-red"><i class="ti ti-lock"></i></div><div class="rinfo"><div class="rtitle">Zaštita osobnih podataka</div><div class="rdesc">Politika privatnosti i GDPR uvjeti u skladu s propisima FBiH i EU.</div></div></div>
-          <div class="div"></div>
-          <div class="row"><div class="ic ic-amber"><i class="ti ti-coin"></i></div><div class="rinfo"><div class="rtitle">Tarifa naknada i usluga</div><div class="rdesc">Pregled svih naknada za usluge banke — ažurirano 01.01.2026.</div><span class="tag tag-amber">Važeće od 01.01.2026.</span></div></div>
-        </div>
-        <div class="slabel">Pritužbe i prijedlozi</div>
-        <div class="card">
-          <div class="row"><div class="ic ic-green"><i class="ti ti-message-dots"></i></div><div class="rinfo"><div class="rtitle">Podnošenje pritužbe</div><div class="rdesc">Pismenim putem na šalteru, e-mailom ili poštom. Odgovaramo u roku od 15 radnih dana.</div></div></div>
-        </div>
-      </div>
-      <div class="kfoot">
-        <div class="fhelp"><i class="ti ti-printer" style="font-size:13px"></i> Dokumenti dostupni na šalteru</div>
-        <div class="fbranch"><i class="ti ti-map-pin" style="font-size:12px"></i> Ferhadija · Sarajevo</div>
-      </div>
-    </div>
-
-  </div><!-- /kiosk -->
-</div><!-- /wrapper -->
+</div><!-- /kiosk -->
 
 <script>
-  var IDLE_SECS = 30;
-  var remaining = IDLE_SECS;
-  var timerInterval = null;
-  var clockInterval = null;
-  var msgInterval = null;
-
-  var screens = {
-    home:'s-home', accounts:'s-accounts', loans:'s-loans',
-    cards:'s-cards', digital:'s-digital', business:'s-business',
-    insurance:'s-insurance', transfers:'s-transfers', terms:'s-terms'
-  };
-
-  var msgs = [
-    'Otvorite račun danas i počnite štedjeti.',
-    'Gotovinski kredit do 30.000 KM — brzo i jednostavno.',
-    'Doznake prema Turskoj uz posebne uvjete.',
-    'Preuzmite Ziraat Mobile aplikaciju besplatno.',
-    'Oročite depozit i zaradite do 4,50% godišnje.'
-  ];
-  var msgIdx = 0;
-
-  function go(name) {
-    Object.values(screens).forEach(function(id) {
-      var el = document.getElementById(id);
-      if (el) el.classList.remove('active');
-    });
-    var t = document.getElementById(screens[name]);
-    if (t) t.classList.add('active');
-    resetTimer();
-  }
-
-  function showIdle() {
-    document.getElementById('idle').classList.add('visible');
-    startClock();
-    startMsgCycle();
-  }
-
-  function dismissIdle() {
-    document.getElementById('idle').classList.remove('visible');
-    stopClock();
-    stopMsgCycle();
-    resetTimer();
-  }
-
-  function resetTimer() {
-    if (document.getElementById('idle').classList.contains('visible')) {
-      dismissIdle();
-      return;
-    }
-    remaining = IDLE_SECS;
-    document.getElementById('timer-count').textContent = remaining;
-    clearInterval(timerInterval);
-    timerInterval = setInterval(function() {
-      remaining--;
-      document.getElementById('timer-count').textContent = remaining;
-      if (remaining <= 0) {
-        clearInterval(timerInterval);
-        go('home');
-        showIdle();
-      }
-    }, 1000);
-  }
-
-  function startClock() { updateClock(); clockInterval = setInterval(updateClock, 1000); }
-  function stopClock()  { clearInterval(clockInterval); }
-
-  function updateClock() {
-    var now = new Date();
-    var h = now.getHours().toString().padStart(2,'0');
-    var m = now.getMinutes().toString().padStart(2,'0');
-    document.getElementById('idle-clock').textContent = h + ':' + m + '  ·  Ferhadija, Sarajevo';
-  }
-
-  function startMsgCycle() {
-    msgIdx = 0;
-    document.getElementById('msg').textContent = msgs[msgIdx];
-    msgInterval = setInterval(function() {
-      var el = document.getElementById('msg');
-      el.classList.add('out-up');
-      setTimeout(function() {
-        msgIdx = (msgIdx + 1) % msgs.length;
-        el.classList.remove('out-up');
-        el.classList.add('in-from-below');
-        el.textContent = msgs[msgIdx];
-        setTimeout(function() { el.classList.remove('in-from-below'); }, 50);
-      }, 500);
-    }, 3500);
-  }
-
-  function stopMsgCycle() { clearInterval(msgInterval); }
-
-  resetTimer();
+var IDLE_SECS=30, remaining=IDLE_SECS;
+var timerInterval=null, clockInterval=null, msgInterval=null;
+var screens={home:'s-home',accounts:'s-accounts',loans:'s-loans',cards:'s-cards',digital:'s-digital',business:'s-business',insurance:'s-insurance',transfers:'s-transfers',terms:'s-terms'};
+var msgs=['Otvorite račun danas i počnite štedjeti.','Gotovinski kredit do 30.000 KM — brzo i jednostavno.','Doznake prema Turskoj uz posebne uvjete.','Preuzmite Ziraat Mobile aplikaciju besplatno.','Oročite depozit i zaradite do 4,50% godišnje.'];
+var msgIdx=0;
+function go(n){Object.values(screens).forEach(function(id){var e=document.getElementById(id);if(e)e.classList.remove('active');});var t=document.getElementById(screens[n]);if(t)t.classList.add('active');resetTimer();}
+function showIdle(){document.getElementById('idle').classList.add('visible');startClock();startMsgCycle();}
+function dismissIdle(){document.getElementById('idle').classList.remove('visible');stopClock();stopMsgCycle();resetTimer();}
+function resetTimer(){if(document.getElementById('idle').classList.contains('visible')){dismissIdle();return;}remaining=IDLE_SECS;document.getElementById('timer-count').textContent=remaining;clearInterval(timerInterval);timerInterval=setInterval(function(){remaining--;document.getElementById('timer-count').textContent=remaining;if(remaining<=0){clearInterval(timerInterval);go('home');showIdle();}},1000);}
+function startClock(){updateClock();clockInterval=setInterval(updateClock,1000);}
+function stopClock(){clearInterval(clockInterval);}
+function updateClock(){var n=new Date();document.getElementById('idle-clock').textContent=n.getHours().toString().padStart(2,'0')+':'+n.getMinutes().toString().padStart(2,'0')+'  ·  Ferhadija, Sarajevo';}
+function startMsgCycle(){msgIdx=0;document.getElementById('msg').textContent=msgs[msgIdx];msgInterval=setInterval(function(){var el=document.getElementById('msg');el.classList.add('out-up');setTimeout(function(){msgIdx=(msgIdx+1)%msgs.length;el.classList.remove('out-up');el.classList.add('in-from-below');el.textContent=msgs[msgIdx];setTimeout(function(){el.classList.remove('in-from-below');},50);},500);},3500);}
+function stopMsgCycle(){clearInterval(msgInterval);}
+resetTimer();
 </script>
 </body>
 </html>
